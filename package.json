@@ -1,0 +1,20 @@
+{
+  "name": "mcp_demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "inspector": "npx @modelcontextprotocol/inspector node ./4_server/stdio.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@modelcontextprotocol/inspector": "^0.10.2",
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "cheerio": "^1.0.0",
+    "express": "^5.1.0",
+    "zod": "^3.24.3"
+  }
+}

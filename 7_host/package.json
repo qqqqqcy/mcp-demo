@@ -1,0 +1,12 @@
+{
+  "name": "7_host",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "vite": "^6.3.4"
+  }
+}

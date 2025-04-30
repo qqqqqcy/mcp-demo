@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+</head>
+
+<body>
+  <h1>MCP Host</h1>
+
+  <div>
+    Tools:
+    <ul id="tools"></ul>
+  </div>
+
+  <label for="input">Query: <input type="text" id="input" /></label>
+
+  <button id="button">Send</button>
+
+  <div>Result:
+    <div id="result"></div>
+  </div>
+
+  <script type="module">
+
+    import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+    import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+    import { llmCall } from "../1_llm/index.js";
+
+    const mcp = new Client({
+      name: "mcp-client-web",
+      version: "1.0.0",
+    });
+
+    const transport = new SSEClientTransport(
+      new URL("http://127.0.0.1:8083/sse")
+    );
+
+    await mcp.connect(transport);
+
+    // 展示 Server 提供的 tools
+    const listTools = await mcp.listTools();;
+    const tools = listTools.tools.map((tool) => {
+      return `<li>${tool.name}</li>`;
+    });
+
+    document.getElementById("tools").innerHTML = tools.join("");
+
+    document.getElementById("button").addEventListener("click", async (e) => {
+      document.getElementById("result").innerHTML = "Loading...";
+      const query = document.getElementById("input").value;
+      const llmResult = await llmCall({
+        messages: [{ role: "user", content: query }],
+        tools: listTools.tools.map((tool) => {
+          return {
+            type: "function",
+            function: {
+              name: tool.name,
+              description: tool.description,
+              parameters: tool.inputSchema,
+            },
+          };
+        }),
+      });
+
+      if (llmResult.choices[0].message.tool_calls) {
+        const toolCall = llmResult.choices[0].message.tool_calls[0];
+        const toolName = toolCall.function.name;
+        const toolArgs = JSON.parse(toolCall.function.arguments);
+        const callResult = await mcp.callTool({
+          name: toolName,
+          arguments: toolArgs,
+        });
+        document.getElementById("result").innerHTML = JSON.stringify(callResult);
+      }
+    });
+  </script>
+</body>
+
+</html>

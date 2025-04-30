@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h1>MCP Client</h1>
+    <div id="app"></div>
+    <script type="module">
+      import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+      import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+
+      const mcp = new Client({
+        name: "mcp-client-web",
+        version: "1.0.0",
+      });
+
+      const transport = new SSEClientTransport(
+        new URL("http://127.0.0.1:8083/sse")
+      );
+
+      await mcp.connect(transport);
+
+      // 展示 Server 提供的 tools
+      const listTools = await mcp.listTools();
+      console.log(listTools);
+
+      // 执行指定的 tool
+      const result = await mcp.callTool({
+        name: "add",
+        arguments: { a: 1, b: 2 },
+      });
+      console.log(result);
+
+      mcp.close();
+    </script>
+  </body>
+</html>
